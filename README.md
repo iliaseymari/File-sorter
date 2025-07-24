@@ -53,7 +53,7 @@
   <p>If you can't test it right now, here's a recorded video showing the program in action:</p>
 
   <p>🎥 video:
-    <a href="https://github.com/iliaseymari/face-processing/raw/refs/heads/main/online-screen-recorder-2025-07-23--15-29-37.mp4">click on me!</a>
+    <a href="https://github.com/iliaseymari/File-sorter/raw/refs/heads/main/online-screen-recorder-2025-07-24--11-02-43.mp4">click on me!</a>
   </p>
 
 
