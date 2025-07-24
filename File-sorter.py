@@ -8,7 +8,7 @@ from pathlib import Path
 from tkinter import Tk, filedialog, messagebox
 from tqdm import tqdm
 
-# پیش‌فرض دسته‌بندی پسوندها
+# Default extension categories
 EXT_CATEGORIES = {    
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -17,14 +17,11 @@ EXT_CATEGORIES = {
 
     ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg', '.webp', '.raw'],
 
-
-
 #-----------------------------------------------------------------------------------------------------------------------
 
     'Music':
 
       ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.wma', '.m4a', '.opus'],
-
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -32,21 +29,17 @@ EXT_CATEGORIES = {
     
     ['.mp4', '.avi', '.mov', '.mkv', '.wmv', '.flv', '.webm', '.mpeg', '.mpg'],
 
-
 #-----------------------------------------------------------------------------------------------------------------------
 
     'Documents': 
     
     ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf', '.txt', '.rtf', '.odt', '.csv', '.md'],
 
-
 #-----------------------------------------------------------------------------------------------------------------------
 
     'Archives': 
     
     ['.zip', '.rar', '.tar', '.gz', '.7z', '.xz', '.iso'],
-
-
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -55,8 +48,6 @@ EXT_CATEGORIES = {
     
     ['.html', '.htm', '.css', '.js', '.json', '.xml', '.php', '.asp', '.jsp'],
 
-
-
 #-----------------------------------------------------------------------------------------------------------------------
 
     'Code': 
@@ -64,13 +55,11 @@ EXT_CATEGORIES = {
     
     ['.py', '.java', '.cpp', '.c', '.rb', '.go', '.swift', '.js', '.ts', '.cs'],
 
-
 #-----------------------------------------------------------------------------------------------------------------------
 
     'Fonts': 
     
     ['.ttf', '.otf', '.woff', '.woff2'],
-
 
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -84,7 +73,6 @@ EXT_CATEGORIES = {
     
     ['.db', '.sqlite', '.sql'],
 
-
 #-----------------------------------------------------------------------------------------------------------------------
     'Text': 
     
@@ -92,10 +80,10 @@ EXT_CATEGORIES = {
     ['.log', '.ini', '.yaml', '.yml'],
 }
 
-# بارگذاری پیکربندی اضافی از فایل JSON
+# Load additional configuration from JSON file
 CONFIG_FILE = 'file_organizer_config.json'
 
-# تنظیمات لاگ
+# Logging settings
 logging.basicConfig(
     filename='file_organizer.log',
     level=logging.INFO,
@@ -157,15 +145,15 @@ def pick_folder(title):
 def main():
     load_config()
     parser = argparse.ArgumentParser(description='Organize files into categorized folders.')
-    parser.add_argument('-s', '--source', type=Path, help='مبدا (اگر خالی باشد، پنجره انتخاب گرافیکی باز می‌شود)')
-    parser.add_argument('-d', '--dest', type=Path, help='مقصد (در صورت خالی، در کنار مبدا ساخته می‌شود)')
-    parser.add_argument('-r', '--recursive', action='store_true', help='جستجوی بازگشتی در زیرپوشه‌ها')
-    parser.add_argument('--dry-run', action='store_true', help='شبیه‌سازی عملیات بدون انتقال')
+    parser.add_argument('-s', '--source', type=Path, help='Source (if empty, GUI selection will open)')
+    parser.add_argument('-d', '--dest', type=Path, help='Destination (if empty, created next to source)')
+    parser.add_argument('-r', '--recursive', action='store_true', help='Recursively search subfolders')
+    parser.add_argument('--dry-run', action='store_true', help='Simulate the operation without moving files')
     args = parser.parse_args()
 
     source = args.source or pick_folder('Select Source Folder')
     if not source or not source.is_dir():
-        messagebox.showerror('خطا', 'مسیر مبدا معتبر نیست!')
+        messagebox.showerror('Error', 'Invalid source path!')
         return
 
     dest = args.dest or pick_folder('Select Destination Folder')
@@ -173,7 +161,7 @@ def main():
         dest = source.parent / (source.name + '_organized')
 
     stats = {}
-    # اجرای در رشته جدا برای نریختن UI
+    # Run in a separate thread to avoid freezing the UI
     thread = threading.Thread(
         target=lambda: stats.update(organize_folder(source, dest, args.recursive, args.dry_run)),
         daemon=True
@@ -181,8 +169,8 @@ def main():
     thread.start()
     thread.join()
 
-    summary = '\n'.join([f"{cat}: {cnt} files" for cat, cnt in stats.items()]) or 'هیچ فایلی منتقل نشد.'
-    messagebox.showinfo('خلاصه', summary)
+    summary = '\n'.join([f"{cat}: {cnt} files" for cat, cnt in stats.items()]) or 'No files were moved.'
+    messagebox.showinfo('Summary', summary)
     print('Summary:')
     print(summary)
 
